@@ -9,6 +9,7 @@ export default function ListUser() {
     useEffect(() => {
         getTrade();
     }, []);
+    const[loading,setLoading]= useState(true);
     
     const location=useLocation()
     const params = new URLSearchParams(location.search)
@@ -19,6 +20,7 @@ export default function ListUser() {
             axios.get('http://localhost:8000/api/trades?deal='+params.get("deal")+'&login='+params.get("login")).then(function(response) {
                 console.log(response.data);
                 setTrade(response.data);
+                setLoading(false);
             })
             .catch(function (response) {
                 //handle error
@@ -75,7 +77,11 @@ export default function ListUser() {
             <br/>
             <input type="submit" className="btn btn-primary btn-block" onClick={e => this.handleFormSubmit(e)} value="Search for Trade" />    
             </div>
-        </form> 
+        </form>
+        {loading ? 
+        (<div className="spinner-border" role="status">
+            <span className="sr-only">Loading...</span>
+        </div> ): (<div className="container">
         <h3>Trade Table</h3>
         <table className="table table-bordered table-striped">
         <thead>  
@@ -109,6 +115,8 @@ export default function ListUser() {
             ))}
         </tbody>
         </table>
+        </div>
+        )}
          </div>
     )
 }
