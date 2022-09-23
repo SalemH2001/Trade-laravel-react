@@ -13,27 +13,31 @@ class tradeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function search(Request $request)
     {
-        if($request->deal != null && $request->login != null)
-        {
-            $query= Trade::where('deal',$request->deal)->get();
+        if($request->search){
+            $query= Trade::where('deal', 'LIKE', '%'.$request->search.'%')
+                    ->orWhere('login', 'LIKE', '%'.$request->search.'%')
+                    ->paginate(10);
         }
-        if($request->deal && $request->login == null){
-            $query= Trade::where('deal',$request->deal)->get();
+        if($request->search == null){
+            return response()->json([
+                'message' => 'Please enter a value',
+            ], 400);
+        }
+        if (sizeof($query) == 0) {
+            return response()->json([
+                'message' => 'No Trades Found',
+            ], 404);
+        } else {
+            return $query;
         }
 
-        if($request->login && $request->deal == null){
-            $query= Trade::where('login',$request->login)->get();
-        }
+    }
 
-        if(sizeof($query) == 0)
-            {
-                return response()->json([
-                    'message'=>'No Trades Found'
-                ],404);
-            }else
-                return $query;
+    public function show(){
+        $Trade= Trade::paginate(10);
+        return $Trade;
     }
 
     /**
@@ -45,25 +49,27 @@ class tradeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'deal'=>'integer',  
-            'login'=>'integer',
-            'action'=>'integer',
-            'entry'=>'integer',
-            'symbol'=>'string',
-            'price'=>'integer',
-            'profit'=>'integer',
-            'volume'=>'integer',
+            'deal' => 'integer',
+            'login' => 'integer',
+            'action' => 'integer',
+            'entry' => 'integer',
+            'symbol' => 'string',
+            'price' => 'integer',
+            'profit' => 'integer',
+            'volume' => 'integer',
 
         ]);
-        $request['time']=date('Y-m-d H:i:s');
-        $input=$request->all();
-        $duplicate=Trade::where('deal',$request->deal)->count();
-        if($duplicate != 0){
+        $request['time'] = date('Y-m-d H:i:s');
+        $input = $request->all();
+        $duplicate = Trade::where('deal', $request->deal)->count();
+        if ($duplicate != 0) {
             return response()->json([
-                'message'=>'this deal already there.'
-            ],404);
-        }else $trade= Trade::create($input);
-        $trade->get();
+                'message' => 'this deal already there.',
+            ], 400);
+        } else {
+            $trade = Trade::create($input);
+        }
+
         return new tradeResource($trade);
     }
 

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::post('/trades/create',[tradeController::class,'store']);
 Route::get('/trades',[tradeController::class,'show']);
+Route::get('/trade',[tradeController::class,'search']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
