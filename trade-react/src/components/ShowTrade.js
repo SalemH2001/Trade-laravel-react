@@ -8,7 +8,7 @@ export default function ListUser() {
 
     const [trades, setTrade] = useState([]);
     const [Paginate, setPaginate] = useState([]);
-    const [pageNumber] = useState(1);
+    const [pageNumber, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const location = useLocation()
     const params = new URLSearchParams(location.search)
@@ -18,24 +18,24 @@ export default function ListUser() {
         getTrade();
     }, []);
 
- 
+
     function getTrade() {
-        
+
         setLoading(true);
-        axios.get("http://localhost:8000/api/trades?page=" +pageNumber  ).then(function (response) {
-                setPaginate(response.data);
-                setTrade(response.data.data);
-                setLoading(false);
-            })
-                .catch(function (error) {
-                    //handle error
-                    alert(error.response.data.message);
-                });
-            
-        if (params.get('search') != null ) {
+        axios.get("http://localhost:8000/api/trades?page=" + pageNumber).then(function (response) {
+            setPaginate(response.data);
+            setTrade(response.data.data);
+            setLoading(false);
+        })
+            .catch(function (error) {
+                //handle error
+                alert(error.response.data.message);
+            });
+
+        if (params.get('search') != null) {
             setTrade([]);
             setLoading(true);
-            axios.get('http://localhost:8000/api/trade?search=' + params.get("search") + '&page=' +  pageNumber ).then(function (response) {
+            axios.get('http://localhost:8000/api/trade?search=' + params.get("search") + '&page=' + pageNumber).then(function (response) {
                 setPaginate(response.data);
                 setTrade(response.data.data);
                 setLoading(false);
@@ -44,7 +44,7 @@ export default function ListUser() {
                     //handle error
                     alert(error.response.data.message);
                 });
-        } 
+        }
 
     }
 
@@ -114,10 +114,11 @@ export default function ListUser() {
                 )}
             <div>
                 <Pagination
-                    activePage={Paginate?.current_page ? Paginate?.current_page : 0 }
+                    activePage={Paginate?.current_page ? Paginate?.current_page : 0}
                     itemsCountPerPage={Paginate?.per_page ? Paginate?.per_page : 0}
                     totalItemsCount={Paginate?.total ? Paginate?.total : 0}
                     onChange={(pageNumber) => {
+                        setPage(pageNumber)
                         getTrade(pageNumber)
                     }}
                     pageRangeDisplayed={10}

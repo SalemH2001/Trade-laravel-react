@@ -15,12 +15,12 @@ class tradeController extends Controller
      */
     public function search(Request $request)
     {
-        if($request->search){
-            $query= Trade::where('deal', 'LIKE', '%'.$request->search.'%')
-                    ->orWhere('login', 'LIKE', '%'.$request->search.'%')
-                    ->paginate(10);
+        if ($request->search) {
+            $query = Trade::where('deal', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('login', 'LIKE', '%' . $request->search . '%')
+                ->paginate(10);
         }
-        if($request->search == null){
+        if ($request->search == null) {
             return response()->json([
                 'message' => 'Please enter a value',
             ], 400);
@@ -35,8 +35,9 @@ class tradeController extends Controller
 
     }
 
-    public function show(){
-        $Trade= Trade::paginate(10);
+    public function show()
+    {
+        $Trade = Trade::paginate(10);
         return $Trade;
     }
 
