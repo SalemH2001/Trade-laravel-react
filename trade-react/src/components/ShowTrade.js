@@ -7,8 +7,12 @@ import Pagination from "react-js-pagination";
 export default function ListUser() {
 
     const [trades, setTrade] = useState([]);
+    const [Strades, setSTrade] = useState([]);
     const [Paginate, setPaginate] = useState([]);
+    const [SPaginate, setSPaginate] = useState([]);
     const [pageNumber, setPage] = useState(1);
+    const [search] = useState('');
+    const [searching,setSearching]=useState(false);
     const [loading, setLoading] = useState(false);
     const location = useLocation()
     const params = new URLSearchParams(location.search)
@@ -18,6 +22,9 @@ export default function ListUser() {
         getTrade();
     }, []);
 
+    useEffect(() => {
+        handleFormSubmit();
+    }, []);
 
     function getTrade() {
 
@@ -31,32 +38,24 @@ export default function ListUser() {
                 //handle error
                 alert(error.response.data.message);
             });
+    }
 
+    function handleFormSubmit(event){
+        // event.preventDefault();
+        let formData = new FormData();
+        formData.append('search', search);
         if (params.get('search') != null) {
-            setTrade([]);
+            setSearching(true);
             setLoading(true);
             axios.get('http://localhost:8000/api/trade?search=' + params.get("search") + '&page=' + pageNumber).then(function (response) {
-                setPaginate(response.data);
-                setTrade(response.data.data);
+                setSPaginate(response.data);
+                setSTrade(response.data.data);
                 setLoading(false);
             })
                 .catch(function (error) {
                     //handle error
                     alert(error.response.data.message);
                 });
-        }
-
-    }
-
-    class App extends React.Component {
-        state = {
-            search: '',
-        }
-        handleFormSubmit(event) {
-            event.preventDefault();
-
-            let formData = new FormData();
-            formData.append('search', this.state.search)
         }
     }
 
@@ -73,7 +72,7 @@ export default function ListUser() {
                     <input type="submit" className="btn btn-primary btn-block" onClick={e => this.handleFormSubmit(e)} value="Search for Trade" />
                 </div>
             </form>
-            {loading ?
+            {loading?
                 (<div className="spinner-border" role="status">
                     <span className="sr-only">Loading...</span>
                 </div>) : (<div className="container">
@@ -92,8 +91,28 @@ export default function ListUser() {
                                 <th>Volume</th>
                             </tr>
                         </thead>
+                        {!searching? 
+                (  
+                    <tbody>
+                    {Object.values(trades).map((trade, index) => (
+                        <tr key={index}>
+                            <td>{trade.Deal}</td>
+                            <td>{trade.Login}</td>
+                            <td>{trade.Action}</td>
+                            <td>{trade.Entry}</td>
+                            <td>{trade.Time}</td>
+                            <td>{trade.Symbol}</td>
+                            <td>{trade.Price}</td>
+                            <td>{trade.Profit}</td>
+                            <td>{trade.Volume}</td>
+
+                        </tr>
+
+                    ))}
+                </tbody>
+                ) : (
                         <tbody>
-                            {Object.values(trades).map((trade, index) => (
+                            {Object.values(Strades).map((trade, index) => (
                                 <tr key={index}>
                                     <td>{trade.Deal}</td>
                                     <td>{trade.Login}</td>
@@ -109,17 +128,20 @@ export default function ListUser() {
 
                             ))}
                         </tbody>
+                )}
                     </table>
                 </div>
                 )}
-            <div>
+
+                {!searching? 
+                (<div>
                 <Pagination
                     activePage={Paginate?.current_page ? Paginate?.current_page : 0}
                     itemsCountPerPage={Paginate?.per_page ? Paginate?.per_page : 0}
                     totalItemsCount={Paginate?.total ? Paginate?.total : 0}
                     onChange={(pageNumber) => {
                         setPage(pageNumber)
-                        getTrade(pageNumber)
+                        getTrade()
                     }}
                     pageRangeDisplayed={10}
                     itemClass="page-item"
@@ -127,7 +149,22 @@ export default function ListUser() {
                     firstPageText="First Page"
                     lastPageText="Last Lage"
                 />
-            </div>
+            </div>) : (<div>
+                <Pagination
+                    activePage={SPaginate?.current_page ? SPaginate?.current_page : 0}
+                    itemsCountPerPage={SPaginate?.per_page ? SPaginate?.per_page : 0}
+                    totalItemsCount={SPaginate?.total ? SPaginate?.total : 0}
+                    onChange={(pageNumber) => {
+                        setPage(pageNumber)
+                        handleFormSubmit()
+                    }}
+                    pageRangeDisplayed={10}
+                    itemClass="page-item"
+                    linkClass="page-link"
+                    firstPageText="First Page"
+                    lastPageText="Last Lage"
+                />
+            </div>)}
         </div>
     )
 }
