@@ -26,7 +26,7 @@ export default function ListUser() {
         handleFormSubmit();
     }, []);
 
-    function getTrade() {
+    function getTrade(pageNumber) {
 
         setLoading(true);
         axios.get("http://localhost:8000/api/trades?page=" + pageNumber).then(function (response) {
@@ -40,8 +40,7 @@ export default function ListUser() {
             });
     }
 
-    function handleFormSubmit(event){
-        // event.preventDefault();
+    function handleFormSubmit(pageNumber){
         let formData = new FormData();
         formData.append('search', search);
         if (params.get('search') != null) {
@@ -140,8 +139,7 @@ export default function ListUser() {
                     itemsCountPerPage={Paginate?.per_page ? Paginate?.per_page : 0}
                     totalItemsCount={Paginate?.total ? Paginate?.total : 0}
                     onChange={(pageNumber) => {
-                        setPage(pageNumber)
-                        getTrade()
+                        getTrade(pageNumber)
                     }}
                     pageRangeDisplayed={10}
                     itemClass="page-item"
@@ -155,8 +153,7 @@ export default function ListUser() {
                     itemsCountPerPage={SPaginate?.per_page ? SPaginate?.per_page : 0}
                     totalItemsCount={SPaginate?.total ? SPaginate?.total : 0}
                     onChange={(pageNumber) => {
-                        setPage(pageNumber)
-                        handleFormSubmit()
+                        handleFormSubmit(pageNumber)
                     }}
                     pageRangeDisplayed={10}
                     itemClass="page-item"
