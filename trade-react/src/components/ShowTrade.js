@@ -1,6 +1,6 @@
 import axios from "axios"
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import React from "react";
 import Pagination from "react-js-pagination";
 
@@ -10,14 +10,13 @@ export default function ListUser() {
     const [Strades, setSTrade] = useState([]);
     const [Paginate, setPaginate] = useState([]);
     const [SPaginate, setSPaginate] = useState([]);
-    const [pageNumber, setPage] = useState(1);
     const [search] = useState('');
     const [searching,setSearching]=useState(false);
     const [loading, setLoading] = useState(false);
     const location = useLocation()
     const params = new URLSearchParams(location.search)
 
-
+    
     useEffect(() => {
         getTrade();
     }, []);
@@ -27,7 +26,7 @@ export default function ListUser() {
     }, []);
 
     function getTrade(pageNumber) {
-
+       
         setLoading(true);
         axios.get("http://localhost:8000/api/trades?page=" + pageNumber).then(function (response) {
             setPaginate(response.data);
@@ -74,7 +73,7 @@ export default function ListUser() {
             {loading?
                 (<div className="spinner-border" role="status">
                     <span className="sr-only">Loading...</span>
-                </div>) : (<div className="container">
+                </div>) : (<div className="table-responsive">
                     <h3>Trade Table</h3>
                     <table className="table table-bordered table-striped">
                         <thead>
@@ -133,7 +132,8 @@ export default function ListUser() {
                 )}
 
                 {!searching? 
-                (<div>
+                (<div 
+                >
                 <Pagination
                     activePage={Paginate?.current_page ? Paginate?.current_page : 0}
                     itemsCountPerPage={Paginate?.per_page ? Paginate?.per_page : 0}
@@ -141,13 +141,14 @@ export default function ListUser() {
                     onChange={(pageNumber) => {
                         getTrade(pageNumber)
                     }}
-                    pageRangeDisplayed={10}
+                    getPageUrl={(i)=>`?page=${i}`}
+                    pageRangeDisplayed={5}
                     itemClass="page-item"
                     linkClass="page-link"
                     firstPageText="First Page"
                     lastPageText="Last Lage"
                 />
-            </div>) : (<div>
+            </div>) : (<div >
                 <Pagination
                     activePage={SPaginate?.current_page ? SPaginate?.current_page : 0}
                     itemsCountPerPage={SPaginate?.per_page ? SPaginate?.per_page : 0}
@@ -155,7 +156,7 @@ export default function ListUser() {
                     onChange={(pageNumber) => {
                         handleFormSubmit(pageNumber)
                     }}
-                    pageRangeDisplayed={10}
+                    pageRangeDisplayed={5}
                     itemClass="page-item"
                     linkClass="page-link"
                     firstPageText="First Page"
