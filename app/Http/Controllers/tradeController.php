@@ -15,24 +15,28 @@ class tradeController extends Controller
      */
     public function search(Request $request)
     {
-        if ($request->search) {
-            $query = Trade::where('deal', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('login', 'LIKE', '%' . $request->search . '%')
-                ->paginate(10);
-        }
-        if ($request->search == null) {
-            return response()->json([
-                'message' => 'Please enter a value',
-            ], 400);
-        }
-        if (sizeof($query) == 0) {
-            return response()->json([
-                'message' => 'No Trades Found',
-            ], 404);
-        } else {
-            return $query;
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $search = $request->input('search', null);
+
+        $query = Trade::query();
+
+        if ($search) {
+            $query->where('deal', 'LIKE', '%' . $request->search . '%')
+            ->orWhere('login', 'LIKE', '%' . $request->search . '%');
         }
 
+        $trades = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'data' => $trades->items(),
+            'pagination' => [
+                'total' => $trades->total(),
+                'per_page' => $trades->perPage(),
+                'current_page' => $trades->currentPage(),
+                'last_page' => $trades->lastPage(),
+            ],
+        ]);
     }
 
     public function show()
